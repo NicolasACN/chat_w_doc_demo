@@ -1,6 +1,7 @@
 streamlit
 langchain
 openai
-chromadb
+faiss-cpu
 tiktoken
 pysqlite3-binary
+unstructured

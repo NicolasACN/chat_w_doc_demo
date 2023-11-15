@@ -1,9 +1,11 @@
 import streamlit as st
-from langchain.llms import OpenAI
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.chains import RetrievalQA
+from langchain.vectorstores.faiss import FAISS
+from langchain.chains import ConversationalRetrievalChain
+from langchain.memory import ConversationBufferMemory
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import PromptTemplate
 
 __import__('pysqlite3')
 import sys
@@ -12,19 +14,60 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 def generate_response(uploaded_file, openai_api_key, query_text):
     # Load document if file is uploaded
     if uploaded_file is not None:
-        documents = [uploaded_file.read().decode()]
+        raw_documents = [uploaded_file.read().decode()]
+
         # Split documents into chunks
-        text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
-        texts = text_splitter.create_documents(documents)
+        text_splitter = CharacterTextSplitter(
+            chunk_size=600,
+            chunk_overlap=100,
+            length_function=len
+        )
+        documents = text_splitter.create_documents(raw_documents)
+
         # Select embeddings
         embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
+
         # Create a vectorstore from documents
-        db = Chroma.from_documents(texts, embeddings)
+        vectorstore = FAISS.from_documents(documents, embeddings)
+
         # Create retriever interface
-        retriever = db.as_retriever()
-        # Create QA chain
-        qa = RetrievalQA.from_chain_type(llm=OpenAI(model="gpt-4", openai_api_key=openai_api_key), chain_type="stuff", retriever=retriever)
-        return qa.run(query_text)
+        retriever = vectorstore.as_retriever()
+
+        # Create LLM
+        llm = ChatOpenAI(openai_api_key=openai_api_key, model_name="gpt-4", temperature=0)
+
+        # Create memory
+        memory = ConversationBufferMemory(
+            memory_key="chat_history",
+            return_messages=True
+        )
+
+        # create Prompt from query text
+        
+        template = """You are an AI assistant for answering questions about the most recent state of the union address.
+        You are given the following extracted parts of a long document and a question. Provide a conversational answer.
+        If you don't know the answer, just say "Hmm, I'm not sure." Don't try to make up an answer.
+        If the question is not about the most recent state of the union, politely inform them that you are tuned to only answer questions about the most recent state of the union.
+        Question: {question}
+        =========
+        {context}
+        =========
+        Answer in Markdown:"""
+
+        QA_PROMPT = PromptTemplate(
+            template=template,
+            input_variables=["question", "context"]
+        )
+
+        # Create ConversationalRetrievalChain
+        qa = ConversationalRetrievalChain.from_llm(
+            llm=llm,
+            retriever=retriever,
+            memory=memory,
+            combine_docs_chain_kwargs={"prompt": QA_PROMPT}
+        )
+
+        return qa({"question": query_text})
     
 # Page title
 st.set_page_config(page_title='Ask the Transavia FAQ')
