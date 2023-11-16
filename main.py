@@ -24,7 +24,7 @@ def generate_response(uploaded_file, openai_api_key, query_text):
 
         # Split documents into chunks
         text_splitter = CharacterTextSplitter(
-            separator="\n\n",
+            separator="\r\n\r",
             chunk_size=600,
             chunk_overlap=100,
             length_function=len
