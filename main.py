@@ -6,6 +6,8 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.memory import ConversationBufferMemory
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
+import sys
+print(sys.version)
 
 from langchain.globals import set_debug
 set_debug(True)
