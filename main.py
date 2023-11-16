@@ -28,7 +28,8 @@ def generate_response(uploaded_file, openai_api_key, query_text):
             length_function=len
         )
         documents = text_splitter.create_documents(raw_documents)
-
+        # Debug : 
+        print(f"Found {len(documents)} documents!!")
         # Select embeddings
         embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
