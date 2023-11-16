@@ -8,12 +8,12 @@ from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 import sys
 print(sys.version)
-
+import langchain
+print(langchain.__version__)
 from langchain.globals import set_debug
 set_debug(True)
 
 __import__('pysqlite3')
-import sys
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 def generate_response(uploaded_file, openai_api_key, query_text):
