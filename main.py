@@ -20,6 +20,7 @@ def generate_response(uploaded_file, openai_api_key, query_text):
     # Load document if file is uploaded
     if uploaded_file is not None:
         raw_documents = [uploaded_file.read().decode()]
+        print(raw_documents)
 
         # Split documents into chunks
         text_splitter = CharacterTextSplitter(
@@ -30,6 +31,7 @@ def generate_response(uploaded_file, openai_api_key, query_text):
         documents = text_splitter.create_documents(raw_documents)
         # Debug : 
         print(f"Found {len(documents)} documents!!")
+
         # Select embeddings
         embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
 
