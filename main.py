@@ -19,11 +19,12 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 def generate_response(uploaded_file, openai_api_key, query_text):
     # Load document if file is uploaded
     if uploaded_file is not None:
-        raw_documents = [uploaded_file.read().decode()]
+        raw_documents = [uploaded_file.read().decode("utf-8")]
         print(raw_documents)
 
         # Split documents into chunks
         text_splitter = CharacterTextSplitter(
+            separator="\n\n",
             chunk_size=600,
             chunk_overlap=100,
             length_function=len
