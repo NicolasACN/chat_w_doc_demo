@@ -37,8 +37,8 @@ def get_qa_agent():
     loader = DirectoryLoader("FAQ/", glob="*.txt")
     documents = loader.load()
 
-    for doc in documents: 
-        doc.metadata["name"] = doc.metadata["source"].split("\\")[1].replace("_", " ")[:-4].capitalize()
+#    for doc in documents: 
+#        doc.metadata["name"] = doc.metadata["source"].split("\\")[1].replace("_", " ")[:-4].capitalize()
     
     # Chunking and VectorStore 
     text_splitter = CharacterTextSplitter(chunk_size=600, chunk_overlap=100)
