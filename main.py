@@ -44,7 +44,8 @@ def generate_response(uploaded_file, openai_api_key, query_text):
 
         # Create LLM
         llm = ChatOpenAI(openai_api_key=openai_api_key, model_name="gpt-4", temperature=0)
-
+        print(llm.model_name)
+        
         # Create memory
         memory = ConversationBufferMemory(
             memory_key="chat_history",
