@@ -20,6 +20,11 @@ from langchain.vectorstores import FAISS
 from langchain.agents.agent_toolkits import create_retriever_tool
 from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
 from langchain.chat_models import ChatOpenAI
+import os
+
+# Load OAI Key
+os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
+
 
 #from source_retriever import list_top_k_sources, get_top_k_urls
 #logging.basicConfig(level=logging.INFO)
