@@ -12,8 +12,15 @@ import streamlit as st
 #    REGION,
 #    BUCKET_NAME
 #)
-
 from streamlit_feedback import streamlit_feedback
+from langchain.document_loaders import DirectoryLoader
+from langchain.embeddings import OpenAIEmbeddings
+from langchain.text_splitter import CharacterTextSplitter
+from langchain.vectorstores import FAISS
+from langchain.agents.agent_toolkits import create_retriever_tool
+from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
+from langchain.chat_models import ChatOpenAI
+
 #from source_retriever import list_top_k_sources, get_top_k_urls
 #logging.basicConfig(level=logging.INFO)
 
@@ -26,7 +33,36 @@ from streamlit_feedback import streamlit_feedback
 #)
 
 def get_qa_agent():
-    return lambda x: "this is an agent"
+    # Loading data
+    loader = DirectoryLoader("FAQ/", glob="*.txt")
+    documents = loader.load()
+
+    for doc in documents: 
+        doc.metadata["name"] = doc.metadata["source"].split("\\")[1].replace("_", " ")[:-4].capitalize()
+    
+    # Chunking and VectorStore 
+    text_splitter = CharacterTextSplitter(chunk_size=600, chunk_overlap=100)
+    texts = text_splitter.split_documents(documents)
+    embeddings = OpenAIEmbeddings()
+    db = FAISS.from_documents(texts, embeddings)
+
+    # Retriever tool
+    retriever = db.as_retriever()
+    tool = create_retriever_tool(
+        retriever,
+        "search_transavia_FAQ",
+        "Searches the Transavia company FAQ Documents to answer the user question regarding the company policies"
+    )
+    tools = [tool]
+
+    # Agent constructor
+    llm = ChatOpenAI(temperature=0, api_key="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")
+    agent_executor = create_conversational_retrieval_agent(
+        llm,
+        tools,
+        verbose=False
+    )
+    return agent_executor
 
 @st.cache_resource
 def cached_qa_agent():
@@ -34,7 +70,7 @@ def cached_qa_agent():
     return qa_agent
 
 
-st.title('Chat with Transavia FAQ')
+st.title("Transavia's Conversational FAQ")
 
 qa_agent = cached_qa_agent()
 #octo_logo = add_logo(logo_path="./logo_octo.png", width=250, height=120)
@@ -61,7 +97,7 @@ if "feedback_key" not in st.session_state:
     st.session_state.feedback_key = 0
 
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "content": "Hello, I'm the Transavia Assistant, how can I help you ?"}]
+    st.session_state["messages"] = [{"role": "assistant", "content": "Hello, I'm the Transavia FAQ Assistant, how can I help you today?"}]
 
 if "runtime" not in st.session_state:
     st.session_state.runtime = 0
@@ -79,11 +115,11 @@ if prompt := st.chat_input("How can I help ?"):
 
 #    # Get answer
 #    time_st = time.time()
-    result = qa_agent({"query": prompt})
+    result = qa_agent({"input": prompt})
 #    sources_str = list_top_k_sources(result)
 #    st.session_state.sources = get_top_k_urls(result)
 #    answer = result["result"]
-    answer = result
+    answer = result["output"]
 #    documents = result["source_documents"]
 #    time_end = time.time()
 
