@@ -56,7 +56,7 @@ def get_qa_agent():
     tools = [tool]
 
     # Agent constructor
-    llm = ChatOpenAI(temperature=0, api_key="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")
+    llm = ChatOpenAI(temperature=0, api_key="sk-")
     agent_executor = create_conversational_retrieval_agent(
         llm,
         tools,
