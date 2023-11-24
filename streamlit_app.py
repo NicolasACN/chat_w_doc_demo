@@ -62,6 +62,8 @@ def get_qa_agent():
 
     # Agent constructor
     llm = ChatOpenAI(temperature=0)
+    #print(f"Model : {llm.model_name}")
+    
     agent_executor = create_conversational_retrieval_agent(
         llm,
         tools,
@@ -80,6 +82,7 @@ st.title("Transavia's Conversational FAQ")
 qa_agent = cached_qa_agent()
 #octo_logo = add_logo(logo_path="./logo_octo.png", width=250, height=120)
 
+st.write(f"Based on OpenAI {qa_agent.model}")
 with st.sidebar:
 #    st.image(octo_logo)
     st.caption('Select the documents you want to search in:')
