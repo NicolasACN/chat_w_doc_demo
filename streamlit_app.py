@@ -82,7 +82,8 @@ st.title("Transavia's Conversational FAQ")
 qa_agent = cached_qa_agent()
 #octo_logo = add_logo(logo_path="./logo_octo.png", width=250, height=120)
 
-st.write(f"Based on OpenAI {qa_agent.agent.llm.model_name}")
+#st.write(f"Based on OpenAI {qa_agent.agent.llm.model_name}")
+
 with st.sidebar:
 #    st.image(octo_logo)
     st.caption('Select the documents you want to search in:')
