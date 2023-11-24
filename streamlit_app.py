@@ -83,7 +83,7 @@ def cached_qa_agent():
     return qa_agent
 
 # Logo
-transavia_logo = add_logo(logo_path="./logo/logo_octo.png", width=1280, height=250)
+transavia_logo = add_logo(logo_path="./logo/Transavia_logo.svg.png", width=1280, height=250)
 st.image(transavia_logo)
 
 
