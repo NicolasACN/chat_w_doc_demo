@@ -87,7 +87,7 @@ transavia_logo = add_logo(logo_path="./logo/Transavia_logo.svg.png", width=1280,
 st.image(transavia_logo)
 
 
-st.title("Transavia's Conversational FAQ")
+st.title("Conversational FAQ")
 
 qa_agent = cached_qa_agent()
 
