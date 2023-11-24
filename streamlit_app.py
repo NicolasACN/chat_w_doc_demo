@@ -21,7 +21,7 @@ from langchain.agents.agent_toolkits import create_retriever_tool
 from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
 from langchain.chat_models import ChatOpenAI
 import os
-
+from PIL import Image
 # Load OAI Key
 os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 
@@ -36,6 +36,12 @@ os.environ['OPENAI_API_KEY'] = st.secrets['OPENAI_API_KEY']
 #    location=REGION,
 #    staging_bucket=f"gs://{BUCKET_NAME}"
 #)
+
+def add_logo(logo_path, width, height):
+    """Read and return a resized logo"""
+    logo = Image.open(logo_path)
+    modified_logo = logo.resize((width, height))
+    return modified_logo
 
 def get_qa_agent():
     # Loading data
@@ -76,20 +82,25 @@ def cached_qa_agent():
     qa_agent = get_qa_agent()
     return qa_agent
 
+# Logo
+transavia_logo = add_logo(logo_path="./logo/logo_octo.png", width=1280, height=250)
+st.image(transavia_logo)
+
 
 st.title("Transavia's Conversational FAQ")
 
 qa_agent = cached_qa_agent()
-#octo_logo = add_logo(logo_path="./logo_octo.png", width=250, height=120)
+
+
 
 st.write(f"Based on OpenAI {qa_agent.agent.llm.model_name}")
 
-with st.sidebar:
+#with st.sidebar:
 #    st.image(octo_logo)
-    st.caption('Select the documents you want to search in:')
-    luggage_docs = st.checkbox('luggage docs', value=True)
-    if luggage_docs:
-        pass
+#    st.caption('Select the documents you want to search in:')
+#    luggage_docs = st.checkbox('luggage docs', value=True)
+#    if luggage_docs:
+#        pass
 
 # Use if additional FAQ docs (cf Zeno)
 
