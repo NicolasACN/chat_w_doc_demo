@@ -1,0 +1,7 @@
+chat_w_doc_demo_venv/
+.env
+.ipynb_checkpoints/
+vectorstore.vs
+state_of_the_union.txt
+notebooks/
+main.py
