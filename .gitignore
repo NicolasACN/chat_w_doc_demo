@@ -5,3 +5,4 @@ vectorstore.vs
 state_of_the_union.txt
 notebooks/
 main.py
+.gitignore
