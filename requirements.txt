@@ -3,6 +3,5 @@ langchain
 openai
 faiss-cpu
 tiktoken
-pysqlite3-binary
 unstructured
 streamlit-feedback
