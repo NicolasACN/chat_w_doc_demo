@@ -1,8 +1,19 @@
 from langchain.chat_models import ChatOpenAI
 from typing import List, Optional
+from langchain.prompts import MessagesPlaceholder
+from langchain.memory import ConversationBufferMemory
+from langchain.agents import AgentExecutor
+from langchain.agents.format_scratchpad import format_to_openai_functions
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema import format_to_openai_functions
+from langchain.agents.output_parsers import OpenAIFunctionsAgentOutputParser, ReActJsonSingleInputOutputParser
+from langchain.agents import AgentType, initialize_agent, load_tools
+from langchain.tools import tool
+from langchain.tools.render import format_tool_to_openai_function
+from langchain.schema.runnable import RunnablePassthrough
 
 class AgentManager:
-    def __init__(self, model=None, memory=None, prompt=None, tools=None, vectorstores=None):
+    def __init__(self, model=None, memory=None, prompt=None, tools=None, vectorstores=None, agent=AG):
         """Create an Agent Manager with its tools and vectorstores to perf
 
         Args:

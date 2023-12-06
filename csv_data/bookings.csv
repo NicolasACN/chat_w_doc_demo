@@ -1,0 +1,6 @@
+﻿booking_id,name,surname,origin,destination,departure_date,flight_status,passport_id
+1,Zeno,Keonigs,AMS,JFK,2023-12-10,ON TIME,123AZD1
+2,Nicolas,Caviezel,CDG,VCE,2023-12-12,ON TIME,189ADZ
+3,Dan,Slama,CDG,TLV,2023-12-15,DELAYED,AZD123
+4,Julie,Lestienne,CDG,Nce,2023-12-25,ON TIME,INO23R
+5,Nicolas,Caviezel,VCE,CDG,2023-12-17,DELAYED,189ADZ
