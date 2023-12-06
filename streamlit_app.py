@@ -26,6 +26,7 @@ from pydantic.v1 import BaseModel, Field
 from typing import Optional, List
 from langchain.tools import tool
 import sqlite3
+from datetime import datetime, timedelta
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
 from langchain.agents import AgentExecutor
@@ -133,7 +134,7 @@ def book_trip(passenger_list: List[Passenger], departure_airport: str, destinati
         if not passenger["passport_number"]:
             return "Trip not booked. Passenger Passport Number info is missing"
     
-    conn = sqlite3.connect("../db/transavia_demo.db")
+    conn = sqlite3.connect("./db/transavia_demo.db")
     cursor = conn.cursor()
     
     for passenger in passenger_list:
@@ -147,11 +148,6 @@ def book_trip(passenger_list: List[Passenger], departure_airport: str, destinati
     
     return "Trip booked!"
 
-
-
-import sqlite3
-from datetime import datetime, timedelta
-
 class SearchFlightsInput(BaseModel):
     origin: str = Field(description="origin airport code for the flight")
     destination: str = Field(description="destination airport code for the flight")
@@ -160,7 +156,7 @@ class SearchFlightsInput(BaseModel):
 @tool(args_schema=SearchFlightsInput)
 def list_flights(origin, destination, date=None):
     """List transavia flights according to what the user is looking for"""
-    conn = sqlite3.connect("../db/transavia_demo.db")
+    conn = sqlite3.connect("./db/transavia_demo.db")
     cursor = conn.cursor()
     
     if not date:
@@ -198,7 +194,7 @@ class SearchBookingsInput(BaseModel):
 @tool(args_schema=SearchBookingsInput)
 def search_bookings(passenger_info: Passenger, booking_id: int = None):
     """Search a booking for a Transavia custommer. User must provide at least name, surname and passport_id or booking_id"""
-    conn = sqlite3.connect("../db/transavia_demo.db")
+    conn = sqlite3.connect("./db/transavia_demo.db")
     cursor = conn.cursor()
     
     if not passenger_info['passport_number'] and not booking_id:
@@ -238,7 +234,7 @@ def search_bookings(passenger_info: Passenger, booking_id: int = None):
         
 def get_agent():
     # Initialize VDB and retriever
-    db = extract_chunk_store(folder_path="../FAQ/")
+    db = extract_chunk_store(folder_path="./FAQ/")
     retriever = lambda x: db.similarity_search(query=x, k=5, return_metadata=True)
     
     prompt = ChatPromptTemplate.from_messages([
