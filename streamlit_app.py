@@ -144,7 +144,7 @@ def book_trip(passenger_list: List[Passenger], departure_airport: str, destinati
         """
         cursor.execute(insert_query, (random.randint(10**4, 10**6), passenger["name"], passenger["surname"], departure_airport, destination_airport, trip_date, "ON TIME", passenger["passport_number"])) # TODO : status hardcoded, this is wrong
         conn.commit()
-        conn.close()
+    conn.close()
     
     return "Trip booked!"
 
