@@ -270,7 +270,7 @@ qa_agent = cached_agent()
 
 
 
-st.write(f"Based on OpenAI {qa_agent.agent.llm.model_name}")
+# st.write(f"Based on OpenAI {qa_agent.agent.llm.model_name}")
 
 #with st.sidebar:
 #    st.image(octo_logo)
