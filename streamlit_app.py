@@ -148,7 +148,7 @@ def book_trip(passenger_list: List[Passenger], departure_airport: str, destinati
     except Exception as e:
         return "An error occured, this agent is still in development stage."
     
-    return "Trip booked!"
+    return "Seats have been reserved. You'll soon receive a mail to proceed with your booking."
 
 class SearchFlightsInput(BaseModel):
     origin: str = Field(description="origin airport code for the flight")
