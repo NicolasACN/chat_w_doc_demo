@@ -19,7 +19,6 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.agents.agent_toolkits import create_retriever_tool
 from langchain.agents.agent_toolkits import create_conversational_retrieval_agent
-from langchain.chat_models import ChatOpenAI
 import os
 from PIL import Image
 from pydantic.v1 import BaseModel, Field
@@ -266,6 +265,7 @@ def get_agent():
 @st.cache_resource
 def cached_agent():
     agent = get_agent()
+    agent.memory.clear()
     return agent
 
 # Logo
