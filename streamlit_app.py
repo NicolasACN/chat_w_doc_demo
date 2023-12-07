@@ -157,6 +157,10 @@ class SearchFlightsInput(BaseModel):
 @tool(args_schema=SearchFlightsInput)
 def list_flights(origin, destination, date=None):
     """List transavia flights according to what the user is looking for based on origin airport code and destination airport code and flight date. Don't make up price information, if you're not sure, ask for the information again."""
+    if not origin:
+        return "No departure airport provided. Please provide one."
+    if not destination:
+        return "No destination airport provided. Please provide one."
     try:
         conn = sqlite3.connect("./db/transavia_demo.db")
         cursor = conn.cursor()
