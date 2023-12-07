@@ -119,7 +119,7 @@ import random
 
 @tool(args_schema=BookTripInput)
 def book_trip(passenger_list: List[Passenger], departure_airport: str, destination_airport: str, trip_date: str) -> str:
-    """Book a transavia flight for the list of passengers"""
+    """Book a transavia flight for the list of passengers based on the provided info. Don't make up info the user didn't provide. """
     if not departure_airport:
         return "Trip not booked. Departure Airport info is missing."
     if not destination_airport:
@@ -136,15 +136,17 @@ def book_trip(passenger_list: List[Passenger], departure_airport: str, destinati
     
     conn = sqlite3.connect("./db/transavia_demo.db")
     cursor = conn.cursor()
-    
-    for passenger in passenger_list:
-        insert_query = """
-        INSERT INTO bookings (booking_id, name, surname, origin, destination, departure_date, flight_status, passport_id)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """
-        cursor.execute(insert_query, (random.randint(10**4, 10**6), passenger["name"], passenger["surname"], departure_airport, destination_airport, trip_date, "ON TIME", passenger["passport_number"])) # TODO : status hardcoded, this is wrong
-        conn.commit()
-    conn.close()
+    try: 
+        for passenger in passenger_list:
+            insert_query = """
+            INSERT INTO bookings (booking_id, name, surname, origin, destination, departure_date, flight_status, passport_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            cursor.execute(insert_query, (random.randint(10**4, 10**6), passenger["name"], passenger["surname"], departure_airport, destination_airport, trip_date, "ON TIME", passenger["passport_number"])) # TODO : status hardcoded, this is wrong
+            conn.commit()
+        conn.close()
+    except Exception as e:
+        return "An error occured, this agent is still in development stage."
     
     return "Trip booked!"
 
@@ -155,35 +157,39 @@ class SearchFlightsInput(BaseModel):
 
 @tool(args_schema=SearchFlightsInput)
 def list_flights(origin, destination, date=None):
-    """List transavia flights according to what the user is looking for"""
-    conn = sqlite3.connect("./db/transavia_demo.db")
-    cursor = conn.cursor()
+    """List transavia flights according to what the user is looking for. Don't make up price information."""
+    try:
+        conn = sqlite3.connect("./db/transavia_demo.db")
+        cursor = conn.cursor()
+        
+        if not date:
+            query = """
+            select * from flights
+            where origin = ?
+            and destination = ?
+            """
+            answer = cursor.execute(query, (origin, destination)).fetchall()
+        
+        else:
+            if date == "today":
+                date = datetime.now().strftime("%Y-%m-%d")
+            elif date == "tomorrow":
+                today = datetime.now()
+                tomorrow = today + timedelta(days=1)
+                date = tomorrow.strftime("%Y-%m-%d")
+                
+            query = """
+            select * from flights
+            where origin = ?
+            and destination = ?
+            and departure_date >= ?
+            """
+            answer = cursor.execute(query, (origin, destination, date)).fetchall()
+        
+        conn.close()
     
-    if not date:
-        query = """
-        select * from flights
-        where origin = ?
-        and destination = ?
-        """
-        answer = cursor.execute(query, (origin, destination)).fetchall()
-    
-    else:
-        if date == "today":
-            date = datetime.now().strftime("%Y-%m-%d")
-        elif date == "tomorrow":
-            today = datetime.now()
-            tomorrow = today + timedelta(days=1)
-            date = tomorrow.strftime("%Y-%m-%d")
-            
-        query = """
-        select * from flights
-        where origin = ?
-        and destination = ?
-        and departure_date >= ?
-        """
-        answer = cursor.execute(query, (origin, destination, date)).fetchall()
-    
-    conn.close()
+    except Exception as e:
+        return "An error occured, this agent is still in development stage."
     
     return answer
         
@@ -193,42 +199,46 @@ class SearchBookingsInput(BaseModel):
     
 @tool(args_schema=SearchBookingsInput)
 def search_bookings(passenger_info: Passenger, booking_id: int = None):
-    """Search a booking for a Transavia custommer. User must provide at least name, surname and passport_id or booking_id"""
-    conn = sqlite3.connect("./db/transavia_demo.db")
-    cursor = conn.cursor()
-    
-    if not passenger_info['passport_number'] and not booking_id:
-        return "Please provide at least the ID of the booking or the passport number of the passenger"
+    """Search a booking for a Transavia custommer. User must provide at least name, surname and passport_id or booking_id. Don't make up information the user has not provided."""
+    try:
+        conn = sqlite3.connect("./db/transavia_demo.db")
+        cursor = conn.cursor()
         
-    if not passenger_info['passport_number']:
-        query = """
-        SELECT * FROM bookings
-        WHERE booking_id = ?
-        AND name = ?
-        AND surname = ?
-        """
-        answer = cursor.execute(query, (booking_id, passenger_info['name'], passenger_info["surname"])).fetchall()
+        if not passenger_info['passport_number'] and not booking_id:
+            return "Please provide at least the ID of the booking or the passport number of the passenger"
+            
+        if not passenger_info['passport_number']:
+            query = """
+            SELECT * FROM bookings
+            WHERE booking_id = ?
+            AND name = ?
+            AND surname = ?
+            """
+            answer = cursor.execute(query, (booking_id, passenger_info['name'], passenger_info["surname"])).fetchall()
+        
+        elif not booking_id:
+            query = """
+            SELECT * FROM bookings
+            WHERE name = ?
+            AND surname = ?
+            AND passport_id = ?
+            """
+            answer = cursor.execute(query, (passenger_info["name"], passenger_info["surname"], passenger_info["passport_number"])).fetchall()
+        
+        else:
+            query = """
+            SELECT * FROM bookings
+            WHERE booking_id = ?
+            AND name = ?
+            AND surname = ?
+            AND passport_id = ?
+            """
+            answer = cursor.execute(query, (booking_id, passenger_info["name"], passenger_info["surname"], passenger_info["passport_number"])).fetchall()
+        
+        conn.close()
     
-    elif not booking_id:
-        query = """
-        SELECT * FROM bookings
-        WHERE name = ?
-        AND surname = ?
-        AND passport_id = ?
-        """
-        answer = cursor.execute(query, (passenger_info["name"], passenger_info["surname"], passenger_info["passport_number"])).fetchall()
-    
-    else:
-        query = """
-        SELECT * FROM bookings
-        WHERE booking_id = ?
-        AND name = ?
-        AND surname = ?
-        AND passport_id = ?
-        """
-        answer = cursor.execute(query, (booking_id, passenger_info["name"], passenger_info["surname"], passenger_info["passport_number"])).fetchall()
-    
-    conn.close()
+    except Exception as e:
+        return "An error occured, this agent is still in development stage."
     
     return answer
         
@@ -238,7 +248,7 @@ def get_agent():
     retriever = lambda x: db.similarity_search(query=x, k=5, return_metadata=True)
     
     prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful customer assistant working for the Transavia company. Great them and assist them as best as you can. You use the tools at your disposal to satisfy user needs. If you can't help the user with its query, ask them to email the support at support@transavia.com."),
+    ("system", "You are a helpful customer assistant working for the Transavia company. Great them and assist them as best as you can. You use the tools at your disposal to satisfy user needs. If you can't help the user with its query, ask them to email the support at support@transavia.com. You only answer questions regarding the Transavia luggage FAQ, bookings and flights. You don't make up any information the user has not provided."),
     MessagesPlaceholder(variable_name="chat_history"),
     ("user", "{input}"),
     MessagesPlaceholder(variable_name="agent_scratchpad")
