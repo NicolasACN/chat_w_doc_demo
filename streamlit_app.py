@@ -254,7 +254,7 @@ def get_agent():
     MessagesPlaceholder(variable_name="agent_scratchpad")
     ])
     tools = [search_FAQ, book_trip, list_flights, search_bookings]
-    model = ChatOpenAI(temperature=0).bind(functions=[format_tool_to_openai_function(t) for t in tools])
+    model = ChatOpenAI(model_name= "gpt-4", temperature=0).bind(functions=[format_tool_to_openai_function(t) for t in tools])
     agent_chain = RunnablePassthrough.assign(
         agent_scratchpad= lambda x: format_to_openai_functions(x["intermediate_steps"])
     ) | prompt | model | OpenAIFunctionsAgentOutputParser()
@@ -304,7 +304,7 @@ if "feedback_key" not in st.session_state:
     st.session_state.feedback_key = 0
 
 if "messages" not in st.session_state:
-    st.session_state["messages"] = [{"role": "assistant", "content": "Hello, I'm the Transavia FAQ Assistant, how can I help you today?"}]
+    st.session_state["messages"] = [{"role": "assistant", "content": "Hello, I'm the Transavia GenAI Assistant, how can I help you today?"}]
 
 if "runtime" not in st.session_state:
     st.session_state.runtime = 0
