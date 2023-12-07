@@ -248,7 +248,7 @@ def get_agent():
     retriever = lambda x: db.similarity_search(query=x, k=5, return_metadata=True)
     
     prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful customer assistant working for the Transavia company. Great them and assist them as best as you can. You use the tools at your disposal to satisfy user needs. If you can't help the user with its query, ask them to email the support at support@transavia.com. You only answer questions regarding the Transavia luggage FAQ, bookings and flights. You don't make up any information the user has not provided."),
+    ("system", "You are a helpful customer assistant working for the Transavia company. Great them and assist them as best as you can, answering only questions about Transavia FAQ, Transavia flights and booking, if the user asks a question regarding any other topic just say you can't answer. You use the tools at your disposal (search FAQ, flight booking, managing bookings) to satisfy user needs using only the information the user provided. Dont make up any information not provided by the user. If you can't help the user with its query, ask them to email the support at support@transavia.com. You only answer questions regarding the Transavia luggage FAQ, bookings and flights. You don't make up any information the user has not provided."),
     MessagesPlaceholder(variable_name="chat_history"),
     ("user", "{input}"),
     MessagesPlaceholder(variable_name="agent_scratchpad")
