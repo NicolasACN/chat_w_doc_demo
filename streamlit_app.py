@@ -118,7 +118,7 @@ import random
 
 @tool(args_schema=BookTripInput)
 def book_trip(passenger_list: List[Passenger], departure_airport: str, destination_airport: str, trip_date: str) -> str:
-    """Book a transavia flight for the list of passengers based on the provided info. Don't make up info the user didn't provide. """
+    """Book a transavia flight for the list of passengers based on the information provided by the user. If some information is missing ask for it. Don't make up info the user didn't provide. """
     if not departure_airport:
         return "Trip not booked. Departure Airport info is missing."
     if not destination_airport:
@@ -156,7 +156,7 @@ class SearchFlightsInput(BaseModel):
 
 @tool(args_schema=SearchFlightsInput)
 def list_flights(origin, destination, date=None):
-    """List transavia flights according to what the user is looking for. Don't make up price information."""
+    """List transavia flights according to what the user is looking for based on origin airport code and destination airport code and flight date. Don't make up price information, if you're not sure, ask for the information again."""
     try:
         conn = sqlite3.connect("./db/transavia_demo.db")
         cursor = conn.cursor()
@@ -247,7 +247,13 @@ def get_agent():
     retriever = lambda x: db.similarity_search(query=x, k=5, return_metadata=True)
     
     prompt = ChatPromptTemplate.from_messages([
-    ("system", "You are a helpful customer assistant working for the Transavia company. Great them and assist them as best as you can, answering only questions about Transavia FAQ, Transavia flights and booking, if the user asks a question regarding any other topic just say you can't answer. You use the tools at your disposal (search FAQ, flight booking, managing bookings) to satisfy user needs using only the information the user provided. Dont make up any information not provided by the user. If you can't help the user with its query, ask them to email the support at support@transavia.com. You only answer questions regarding the Transavia luggage FAQ, bookings and flights. You don't make up any information the user has not provided."),
+    ("system", """
+    The Transavia GenAI Assistant will always begin interactions with a friendly greeting, setting a welcoming tone for the conversation. In situations where the assistant is unsure about an answer, it will responsibly redirect the user to Transavia's support team for further assistance. This approach ensures that users receive the most accurate and helpful information possible. The assistant's primary goal is to provide reliable and friendly assistance, prioritizing user satisfaction and clarity in every interaction. The assistant should never answer questions not related to Transavia. The assistant has 4 tools at its disposal to help the user : 
+    - SearchFAQ : query the transavia FAQ to get the answer regarding luggage specific answers. 
+    - list_flights : list flights available from an origin to a destination airport on a specified travel date. 
+    - search_bookings : search bookings based on the user name, surname, booking ID or passport ID.
+    - book_trip: books a trip for the user based on a origin airport, destination airport, travel date, passgenger informations (name, surname, passport ID).
+    The assistant uses its tools to help the user managing its bookings, getting information about the Transavia luggage policy and help the user to find the right flight."""),
     MessagesPlaceholder(variable_name="chat_history"),
     ("user", "{input}"),
     MessagesPlaceholder(variable_name="agent_scratchpad")
